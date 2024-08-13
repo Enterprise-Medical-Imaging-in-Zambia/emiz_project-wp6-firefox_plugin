@@ -56,7 +56,7 @@ body {
     top: 0;
     width: 300px; /* Fixed width for side menu */
     height: 100%;
-    background-color: gray; /* Black background */
+    background-color: grey; /* Black background */
     color: #ffffff; /* White text */
     padding: 20px;
     overflow-y: auto;

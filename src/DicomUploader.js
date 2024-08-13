@@ -34,6 +34,7 @@ const DicomUploader = () => {
 
           // Extract and render image
           const pixelDataElement = dataSet.elements.x7fe00010;
+
           if (!pixelDataElement) {
             throw new Error('Pixel data element not found');
           }
@@ -44,46 +45,72 @@ const DicomUploader = () => {
           const bitsAllocated = dataSet.uint16('x00280100'); // Bits allocated
           const samplesPerPixel = dataSet.uint16('x00280002'); // Samples per pixel
 
-          const canvas = document.createElement('canvas');
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          const imageData = ctx.createImageData(width, height);
-
-          // Handle different pixel formats
-          if (samplesPerPixel === 1 && bitsAllocated === 8) {
-            for (let i = 0; i < pixelData.length; i++) {
-              const value = pixelData[i];
-              imageData.data[i * 4] = value; // Red
-              imageData.data[i * 4 + 1] = value; // Green
-              imageData.data[i * 4 + 2] = value; // Blue
-              imageData.data[i * 4 + 3] = 255; // Alpha
-            }
-          } else if (samplesPerPixel === 3 && bitsAllocated === 8) {
-            for (let i = 0; i < pixelData.length / 3; i++) {
-              const r = pixelData[i * 3];
-              const g = pixelData[i * 3 + 1];
-              const b = pixelData[i * 3 + 2];
-              imageData.data[i * 4] = r;
-              imageData.data[i * 4 + 1] = g;
-              imageData.data[i * 4 + 2] = b;
-              imageData.data[i * 4 + 3] = 255;
-            }
-          } else {
-            throw new Error('Unsupported DICOM pixel format');
-          }
-
-          ctx.putImageData(imageData, 0, 0);
-          const dicomUrl = canvas.toDataURL('image/png');
+          const dicomUrl = handlePixelDataProcessing(pixelData, width, height, bitsAllocated, samplesPerPixel);
           setDicomImage(dicomUrl);
         } catch (error) {
           console.error('Error processing DICOM file:', error);
-          setError('Failed to process DICOM file. Please ensure the file is valid.');
+          setError(`Failed to process DICOM file. Error: ${error.message}`);
         }
       };
       reader.readAsArrayBuffer(file);
     },
   });
+
+  // Define handlePixelDataProcessing function
+  const handlePixelDataProcessing = (pixelData, width, height, bitsAllocated, samplesPerPixel) => {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    const imageData = ctx.createImageData(width, height);
+
+    try {
+      if (samplesPerPixel === 1) {
+        if (bitsAllocated === 8) {
+          // 8-bit grayscale image
+          for (let i = 0; i < pixelData.length; i++) {
+            const value = pixelData[i];
+            imageData.data[i * 4] = value; // Red
+            imageData.data[i * 4 + 1] = value; // Green
+            imageData.data[i * 4 + 2] = value; // Blue
+            imageData.data[i * 4 + 3] = 255; // Alpha
+          }
+        } else if (bitsAllocated === 16) {
+          // 16-bit grayscale image
+          for (let i = 0; i < pixelData.length / 2; i++) {
+            const value = (pixelData[i * 2] << 8) | pixelData[i * 2 + 1];
+            const normalizedValue = Math.round((value / 65535) * 255); // Scale to 8-bit range
+            imageData.data[i * 4] = normalizedValue; // Red
+            imageData.data[i * 4 + 1] = normalizedValue; // Green
+            imageData.data[i * 4 + 2] = normalizedValue; // Blue
+            imageData.data[i * 4 + 3] = 255; // Alpha
+          }
+        } else {
+          throw new Error('Unsupported bit depth');
+        }
+      } else if (samplesPerPixel === 3 && bitsAllocated === 8) {
+        // 24-bit RGB image
+        for (let i = 0; i < pixelData.length / 3; i++) {
+          const r = pixelData[i * 3];
+          const g = pixelData[i * 3 + 1];
+          const b = pixelData[i * 3 + 2];
+          imageData.data[i * 4] = r;
+          imageData.data[i * 4 + 1] = g;
+          imageData.data[i * 4 + 2] = b;
+          imageData.data[i * 4 + 3] = 255;
+        }
+      } else {
+        throw new Error('Unsupported DICOM pixel format');
+      }
+
+      ctx.putImageData(imageData, 0, 0);
+      return canvas.toDataURL('image/png');
+    } catch (error) {
+      console.error('Error processing pixel data:', error);
+      setError(`Failed to process pixel data. Error: ${error.message}`);
+      return null;
+    }
+  };
 
   const handleTogglePanel = () => {
     setShowPanel(!showPanel);
@@ -126,7 +153,6 @@ const DicomUploader = () => {
           <p><strong>Patient Birth Date:</strong> {metadata.patientBirthDate}</p>
           <p><strong>Patient Sex:</strong> {metadata.patientSex}</p>
           <p><strong>Institution Name:</strong> {metadata.institutionName}</p>
-          {/* Add more metadata fields here as needed */}
         </div>
       )}
     </div>
