@@ -16,7 +16,7 @@ const DicomUploader = () => {
       const formData = new FormData();
       formData.append('file', file);
 
-      setLoading(true); // Start loading
+      setLoading(true);
 
       fetch('http://localhost:5000/upload_dicom', {
         method: 'POST',
@@ -26,12 +26,12 @@ const DicomUploader = () => {
         .then((data) => {
           setDicomImage(`data:image/png;base64,${data.image}`);
           setMetadata(data.metadata);
-          setLoading(false); // End loading
+          setLoading(false);
         })
         .catch((error) => {
           console.error('Error uploading DICOM file:', error);
           setError(`Failed to upload DICOM file. Error: ${error.message}`);
-          setLoading(false); // End loading
+          setLoading(false);
         });
     },
   });
@@ -42,41 +42,23 @@ const DicomUploader = () => {
 
   return (
     <div className="container">
-      <h2>Simple Testing Interface</h2>
-      <div {...getRootProps({ className: 'dropzone' })}>
-        <input {...getInputProps()} />
-        <p>Drag & drop a DICOM file here, or click to select one</p>
-      </div>
-      {error && <p className="error">{error}</p>}
-      {loading && <div className="loading-spinner"></div>}
-      {dicomImage && !loading && (
-        <div className="viewer">
-          <div className="image-container">
-            <h3>DICOM Rendered Image</h3>
-            <img src={dicomImage} alt="DICOM Preview" className="dicom-image" />
-          </div>
-          {metadata && (
-            <div className="metadata-summary">
-              <p><strong>Patient Name:</strong> {metadata.patientName}</p>
-              <p><strong>Patient Birth Date:</strong> {metadata.patientBirthDate}</p>
-              <p><strong>Patient Sex:</strong> {metadata.patientSex}</p>
-              <p><strong>Study Date:</strong> {metadata.studyDate}</p>
-              <p><strong>Modality:</strong> {metadata.modality}</p>
-              <p><strong>Institution Name:</strong> {metadata.institutionName}</p>
-              <button className="toggle-extra-metadata" onClick={handleTogglePanel}>
-        {showPanel ? 'Hide More Metadata' : 'Show More Metadata'}
-      </button>
-            </div>
-
-            
-          )}
-        </div>
-      )}
-
-      {showPanel && metadata && (
-        <div className="metadata-panel show">
-          <h3>Full Metadata</h3>
-          <p><strong>Patient Name:</strong> {metadata.patientName}</p>
+      <div className="metadata-panel">
+        <h3>Full Metadata</h3>
+        {metadata && (
+          <div>
+            <p><strong>Patient Name:</strong> {metadata.patientName}</p>
+            <p><strong>Birth Date:</strong> {metadata.patientBirthDate}</p>
+            <p><strong>Sex:</strong> {metadata.patientSex}</p>
+            <p><strong>Study Date:</strong> {metadata.studyDate}</p>
+            <p><strong>Modality:</strong> {metadata.modality}</p>
+            <p><strong>Institution:</strong> {metadata.institutionName}</p>
+            <button className="toggle-extra-metadata" onClick={handleTogglePanel}>
+              {showPanel ? 'Hide More Metadata' : 'Show More Metadata'}
+            </button>
+            {showPanel && (
+              <div className="metadata-panel show">
+                {/* Additional metadata details */}
+                <p><strong>Patient Name:</strong> {metadata.patientName}</p>
           <p><strong>Patient ID:</strong> {metadata.patientID}</p>
           <p><strong>Study Date:</strong> {metadata.studyDate}</p>
           <p><strong>Modality:</strong> {metadata.modality}</p>
@@ -98,8 +80,54 @@ const DicomUploader = () => {
           <p><strong>Bits Allocated:</strong> {metadata.bitsAllocated}</p>
           <p><strong>Bits Stored:</strong> {metadata.bitsStored}</p>
           <p><strong>Pixel Spacing:</strong> {metadata.pixelSpacing}</p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="drop-viewer">
+        <h2>Simple Testing Interface</h2>
+        <div {...getRootProps({ className: 'dropzone' })}>
+          <input {...getInputProps()} />
+          <p>Drag & drop a DICOM file here, or click to select one</p>
         </div>
-      )}
+        {error && <p className="error">{error}</p>}
+        {loading && <div className="loading-spinner"></div>}
+
+        {dicomImage && !loading && (
+          <div className="viewer">
+            <div className="center-image">
+              <h3>DICOM Rendered Image</h3>
+              <img src={dicomImage} alt="DICOM Preview" className="dicom-image" />
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="right-results">
+              <h3>Analysis Results</h3>
+              <div className="model-card">
+                <h4>Pneumonia</h4>
+                <p>Result: <span className="suspicious">Suspicious</span></p>
+                <p>Confidence: 87%</p>
+              </div>
+              <div className="model-card">
+                <h4>Tuberculosis</h4>
+                <p>Result: <span className="not-suspicious">Not Suspicious</span></p>
+                <p>Confidence: 92%</p>
+              </div>
+              <div className="model-card">
+                <h4>Lung Cancer</h4>
+                <p>Result: <span className="not-suspicious">Not Suspicious</span></p>
+                <p>Confidence: 95%</p>
+              </div>
+              <div className="model-card">
+                <h4>Bronchitis</h4>
+                <p>Result: <span className="suspicious">Suspicious</span></p>
+                <p>Confidence: 78%</p>
+              </div>
+            </div>
     </div>
   );
 };
