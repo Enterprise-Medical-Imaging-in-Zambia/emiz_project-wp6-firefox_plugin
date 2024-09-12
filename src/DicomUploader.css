@@ -17,28 +17,29 @@ body {
   background-color: black;
   border-radius: 12px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  height: 100vh;
 }
 
 /* Full Metadata Panel */
 .metadata-panel {
-  width: 50%;
+  width: 30%;
   background-color: black;
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  overflow-y: auto; /* Enable vertical scroll if needed */
-  height: calc(100vh - 80px); /* Adjust height as necessary */
+  overflow-y: auto;
+  height: calc(100vh - 80px);
   margin-right: 20px;
 }
 
 /* Analysis Results Panel */
 .right-results {
-  width: 50%;
+  width: 30%;
   background-color: #292949;
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  height: calc(100vh - 80px); /* Adjust height as necessary */
+  height: calc(100vh - 80px);
   margin-left: 20px;
 }
 
@@ -46,41 +47,27 @@ body {
 .drop-viewer {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  margin-top: 30px;
-  /* width: 20%; */
-}
-
-.viewer {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 30px;
-  /* width: 20%; */
-}
-
-.center-image {
-  width: 100%;
+  justify-content: center; /* Vertically center the content */
+  align-items: center; /* Horizontally center the content */
   text-align: center;
-}
-
-img.dicom-image {
-  display: block;
-  width: 80%; /* Adjust width if needed */
-  margin: 0 auto;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  height: 100%;
+  background-color: black; /* Matches the body background */
 }
 
 /* Dropzone Styling */
 .dropzone {
+  width: 300px;
+  height: 200px;
   border: 2px dashed #4a90e2;
   border-radius: 12px;
   padding: 30px;
   text-align: center;
   cursor: pointer;
   transition: background-color 0.2s ease-in-out;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .dropzone:hover {
@@ -91,6 +78,28 @@ img.dicom-image {
   font-size: 18px;
   color: #ddd;
   margin: 0;
+}
+
+/* Viewer */
+.viewer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 30px;
+}
+
+.center-image {
+  width: 100%;
+  text-align: center;
+}
+
+img.dicom-image {
+  display: block;
+  width: 80%;
+  margin: 0 auto;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Error Message */
@@ -153,7 +162,6 @@ button.toggle-extra-metadata {
   font-size: 14px;
   color: #c9c9f5;
   margin: 8px 0;
-  
 }
 
 /* Model Results Panel */
@@ -166,7 +174,6 @@ button.toggle-extra-metadata {
   max-width: 400px;
 }
 
-/* Scrollable Results */
 .model-results .scrollable {
   max-height: 400px;
   overflow-y: auto;
@@ -236,4 +243,15 @@ button.toggle-extra-metadata {
   color: white;
   padding: 5px 10px;
   border-radius: 5px;
+}
+
+/* Extra metadata styling */
+.extra-metadata {
+  margin-top: 15px; /* Space between full and extra metadata */
+}
+
+.extra-metadata p {
+  font-size: 14px;
+  color: #c9c9f5;
+  margin: 8px 0;
 }
