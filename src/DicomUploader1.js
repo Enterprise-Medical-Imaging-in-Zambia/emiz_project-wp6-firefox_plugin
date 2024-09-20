@@ -16,22 +16,13 @@ const DicomUploader = () => {
       const formData = new FormData();
       formData.append('file', file);
 
-      // Start loading and clear existing data
       setLoading(true);
-      setError(null);
-      setDicomImage(null);
-      setMetadata(null);
 
       fetch('http://localhost:5000/upload_dicom', {
         method: 'POST',
         body: formData,
       })
-        .then((response) => {
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          return response.json();
-        })
+        .then((response) => response.json())
         .then((data) => {
           setDicomImage(`data:image/png;base64,${data.image}`);
           setMetadata(data.metadata);
@@ -51,25 +42,23 @@ const DicomUploader = () => {
 
   return (
     <div className="container">
-      {/* Loading spinner while data is being fetched */}
-
-
-      {/* Display metadata and image only when not loading */}
-      {!loading && dicomImage && metadata && (
+      {/* Only display metadata if the image has been uploaded */}
+      {dicomImage && metadata && (
         <div className="metadata-panel">
-          <h3>Basic Metadata</h3>
+          <h3>Full Metadata</h3>
           <p><strong>Patient Name:</strong> {metadata.patientName}</p>
           <p><strong>Birth Date:</strong> {metadata.patientBirthDate}</p>
           <p><strong>Sex:</strong> {metadata.patientSex}</p>
+          <p><strong>Study Date:</strong> {metadata.studyDate}</p>
           <p><strong>Modality:</strong> {metadata.modality}</p>
+          <p><strong>Institution:</strong> {metadata.institutionName}</p>
           <button className="toggle-extra-metadata" onClick={handleTogglePanel}>
             {showPanel ? 'Hide More Metadata' : 'Show More Metadata'}
           </button>
 
+          {/* Show additional metadata below the existing metadata */}
           {showPanel && (
             <div className="extra-metadata">
-              <p><strong>Patient ID:</strong> {metadata.patientID}</p>
-              {/* Additional metadata fields */}
               <p><strong>Patient ID:</strong> {metadata.patientID}</p>
               <p><strong>Series Description:</strong> {metadata.seriesDescription}</p>
               <p><strong>Study Instance UID:</strong> {metadata.studyInstanceUID}</p>
@@ -92,20 +81,15 @@ const DicomUploader = () => {
       )}
 
       <div className="drop-viewer">
-        <h2>Sample Testing Interface</h2>
+        <h2>Simple Testing Interface</h2>
         <div {...getRootProps({ className: 'dropzone' })}>
           <input {...getInputProps()} />
           <p>Drag & drop a DICOM file here, or click to select one</p>
-          
         </div>
-        {loading && (
-        <div className="loading-overlay">
-          <div className="loading-spinner"></div>
-        </div>
-      )}
         {error && <p className="error">{error}</p>}
+        {loading && <div className="loading-spinner"></div>}
 
-        {!loading && dicomImage && (
+        {dicomImage && !loading && (
           <div className="viewer">
             <div className="center-image">
               <h3>DICOM Rendered Image</h3>
@@ -114,6 +98,33 @@ const DicomUploader = () => {
           </div>
         )}
       </div>
+
+      {/* Only display analysis results if the image has been uploaded */}
+      {/* {dicomImage && (
+        <div className="right-results">
+          <h3>Analysis Results</h3>
+          <div className="model-card">
+            <h4>Pneumonia</h4>
+            <p>Result: <span className="suspicious">Suspicious</span></p>
+            <p>Confidence: 87%</p>
+          </div>
+          <div className="model-card">
+            <h4>Tuberculosis</h4>
+            <p>Result: <span className="not-suspicious">Not Suspicious</span></p>
+            <p>Confidence: 92%</p>
+          </div>
+          <div className="model-card">
+            <h4>Lung Cancer</h4>
+            <p>Result: <span className="not-suspicious">Not Suspicious</span></p>
+            <p>Confidence: 95%</p>
+          </div>
+          <div className="model-card">
+            <h4>Bronchitis</h4>
+            <p>Result: <span className="suspicious">Suspicious</span></p>
+            <p>Confidence: 78%</p>
+          </div>
+        </div>
+      )} */}
     </div>
   );
 };
